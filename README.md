@@ -6,24 +6,38 @@ This is a full-stack blog posting website with separate frontend and backend app
 
 Follow these steps to set up and run the project:
 
-### 1. Install Dependencies
+### 1. Navigate to the Project Directory
+Open a terminal and navigate to the project folder:
+
+```sh
+cd path/to/Blog-Posting-Website
+```
+
+### 2. Install Dependencies
 Run the following command in both the `blog-frontend` and `blog-backend` directories:
 
 ```sh
+cd blog-frontend
 npm install
+cd ..
+cd blog-backend
+npm install
+cd ..
 ```
 
-### 2. Start the Frontend
+### 3. Start the Frontend
 Navigate to the `blog-frontend` directory and start the development server:
 
 ```sh
+cd blog-frontend
 npm run dev
 ```
 
-### 3. Start the Backend
-Navigate to the `blog-backend` directory and start the backend server:
+### 4. Start the Backend
+Open a new terminal window, navigate to the `blog-backend` directory, and start the backend server:
 
 ```sh
+cd blog-backend
 npm start
 ```
 
@@ -37,8 +51,5 @@ Blog Posting Website/
 
 ## Notes
 - Ensure you have **Node.js** installed before running the project.
-- The frontend will typically run on `http://localhost:5173/` (if using Vite).
-- The backend will run on `http://localhost:3000/` (or the port specified in your backend configuration).
-
-Happy coding! 🚀
-
+- The frontend will typically run on `http://localhost:5173/`.
+- The backend will run on `http://localhost:3000/`.
