@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import AvatarImg from '../assets/avatar.png';
 
 export default function ArticleCard() {
   return (
@@ -13,7 +14,10 @@ export default function ArticleCard() {
           The Impact of Technology on the Workplace: How Technology is Changing
         </h2>
         <div className="flex items-center mt-4 text-gray-600 text-sm">
-          <Avatar className="w-8 h-8 mr-2" />
+          <Avatar className="w-8 h-8 mr-2">
+            <AvatarImage src={AvatarImg} alt="Jason Francisco" />
+            <AvatarFallback>JF</AvatarFallback>
+          </Avatar>
           <span>Jason Francisco</span>
           <span className="mx-2">•</span>
           <span>August 20, 2022</span>

@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import PrivateRoute from './PrivateRoute';
 import { AuthProvider } from './AuthProvider';
 import Navbar from './components/navbar.component';
+import EditorPage from './pages/EditorPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<Navbar />}>
           <Route index element={<HomePage />} />
         </Route>
+        <Route path="/editor" element={<EditorPage />} />
         <Route path="/signin" element={<LoginPage type="signin" />} />
         <Route path="/signup" element={<LoginPage type="signup" />} />
       </Routes>
