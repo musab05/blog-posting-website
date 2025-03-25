@@ -2,33 +2,34 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
-export default function PostCard({
-  image,
-  category,
-  title,
-  author,
-  date,
-  avatar,
-}) {
+export default function PostCard({ banner, tags, title, author, createdAt }) {
   return (
     <Card className="w-full shadow-md rounded-xl overflow-hidden border">
-      <img className="w-full h-48 object-cover" src={image} alt="card img" />
+      <img className="w-full h-48 object-cover" src={banner} alt="card img" />
       <CardContent>
         <Badge className="bg-blue-600 text-white px-3 py-1 rounded-md">
-          {category}
+          {tags && tags.length > 0
+            ? tags[Math.floor(Math.random() * tags.length)]
+            : 'General'}
         </Badge>
         <h2 className="text-base font-semibold mt-3 leading-tight">{title}</h2>
         <div className="flex items-center mt-4 text-gray-600 text-sm">
           <Avatar className="w-8 h-8 mr-2">
-            <AvatarImage src={avatar} alt={author} />
+            <AvatarImage src={author.profileUrl} alt={author.profileUrl} />
             <AvatarFallback>
-              {author.split(' ')[0][0]}
-              {author.split(' ')[1][0]}
+              {author.name.split(' ')[0][0]}
+              {author.name.split(' ')[1][0]}
             </AvatarFallback>
           </Avatar>
-          <span>{author}</span>
+          <span>{author.username}</span>
           <span className="mx-2">•</span>
-          <span>{date}</span>
+          <span>
+            {new Date(createdAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </span>
         </div>
       </CardContent>
     </Card>

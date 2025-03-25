@@ -38,9 +38,10 @@ export function AuthForm({ type = 'signin', className, ...props }) {
       );
 
       SessionManager.setItem('token', response.data.token);
+      SessionManager.setItem('user', JSON.stringify(response.data.user));
       toast.dismiss();
       toast.success('Success! Redirecting...');
-      login(response.data.token)
+      login(response.data.token, response.data.user);
     } catch (error) {
       toast.dismiss();
       toast.error(error.response?.data?.message || 'Something went wrong!');

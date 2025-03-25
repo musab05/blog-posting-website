@@ -74,9 +74,10 @@ router.post('/signup', async (req, res) => {
       message: 'User registered successfully',
       token,
       user: {
+        userId: newUser.id,
         username: newUser.username,
         email: newUser.email,
-        profileEmojiUrl: newUser.profileEmojiUrl,
+        profileUrl: newUser.profileUrl,
       },
     });
   } catch (error) {
@@ -106,9 +107,10 @@ router.post('/signin', async (req, res) => {
       message: 'Login successful',
       token,
       user: {
+        userId: user.id,
         username: user.username,
         email: user.email,
-        profileEmojiUrl: user.profileEmojiUrl,
+        profileUrl: user.profileUrl,
       },
     });
   } catch (error) {
