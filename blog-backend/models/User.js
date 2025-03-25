@@ -1,20 +1,11 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
-const randomEmojiUrl = () => {
-  const emojiUrls = [
-    'https://twemoji.maxcdn.com/v/latest/72x72/1f600.png', // 😀
-    'https://twemoji.maxcdn.com/v/latest/72x72/1f60e.png', // 😎
-    'https://twemoji.maxcdn.com/v/latest/72x72/1f525.png', // 🔥
-    'https://twemoji.maxcdn.com/v/latest/72x72/1f680.png', // 🚀
-    'https://twemoji.maxcdn.com/v/latest/72x72/2b50.png', // 🌟
-    'https://twemoji.maxcdn.com/v/latest/72x72/1f4a1.png', // 💡
-    'https://twemoji.maxcdn.com/v/latest/72x72/1f3af.png', // 🎯
-    'https://twemoji.maxcdn.com/v/latest/72x72/1f607.png', // 😇
-    'https://twemoji.maxcdn.com/v/latest/72x72/1f929.png', // 🤩
-    'https://twemoji.maxcdn.com/v/latest/72x72/1f4bb.png', // 💻
-  ];
-  return emojiUrls[Math.floor(Math.random() * emojiUrls.length)];
+const randomAvatarUrl = () => {
+  const styles = ['adventurer', 'micah', 'avataaars', 'pixel-art'];
+  const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+  const seed = Math.floor(Math.random() * 10000);
+  return `https://api.dicebear.com/7.x/${randomStyle}/svg?seed=${seed}`;
 };
 
 const User = sequelize.define(
@@ -51,10 +42,10 @@ const User = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    profileEmojiUrl: {
+    profileUrl: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: randomEmojiUrl,
+      defaultValue: randomAvatarUrl,
     },
   },
   {

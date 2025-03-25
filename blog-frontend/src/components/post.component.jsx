@@ -1,115 +1,61 @@
+import axios from 'axios';
 import PostCard from './postCard.component';
-import avatar1 from '../assets/avatar.png';
-import avatar2 from '../assets/avatar.png';
-import avatar3 from '../assets/avatar.png';
-import card1 from '../assets/header.png';
-import card2 from '../assets/header.png';
-import card3 from '../assets/header.png';
-import card4 from '../assets/header.png';
-import card5 from '../assets/header.png';
-import card6 from '../assets/header.png';
-import card7 from '../assets/header.png';
-import card8 from '../assets/header.png';
-import card9 from '../assets/header.png';
-
-const posts = [
-  {
-    image: card1,
-    category: 'Technology',
-    title:
-      'The Impact of Technology on the Workplace: How Technology is Changing',
-    author: 'Tracey Wilson',
-    date: 'August 20, 2022',
-    avatar: avatar1,
-  },
-  {
-    image: card2,
-    category: 'Technology',
-    title:
-      'The Impact of Technology on the Workplace: How Technology is Changing',
-    author: 'Jason Francisco',
-    date: 'August 20, 2022',
-    avatar: avatar2,
-  },
-  {
-    image: card3,
-    category: 'Technology',
-    title:
-      'The Impact of Technology on the Workplace: How Technology is Changing',
-    author: 'Elizabeth Slavin',
-    date: 'August 20, 2022',
-    avatar: avatar3,
-  },
-  {
-    image: card4,
-    category: 'Technology',
-    title:
-      'The Impact of Technology on the Workplace: How Technology is Changing',
-    author: 'Ernie Smith',
-    date: 'August 20, 2022',
-    avatar: avatar1,
-  },
-  {
-    image: card5,
-    category: 'Technology',
-    title:
-      'The Impact of Technology on the Workplace: How Technology is Changing',
-    author: 'Eric Smith',
-    date: 'August 20, 2022',
-    avatar: avatar2,
-  },
-  {
-    image: card6,
-    category: 'Technology',
-    title:
-      'The Impact of Technology on the Workplace: How Technology is Changing',
-    author: 'Tracey Wilson',
-    date: 'August 20, 2022',
-    avatar: avatar3,
-  },
-  {
-    image: card7,
-    category: 'Technology',
-    title:
-      'The Impact of Technology on the Workplace: How Technology is Changing',
-    author: 'Jason Francisco',
-    date: 'August 20, 2022',
-    avatar: avatar1,
-  },
-  {
-    image: card8,
-    category: 'Technology',
-    title:
-      'The Impact of Technology on the Workplace: How Technology is Changing',
-    author: 'Elizabeth Slavin',
-    date: 'August 20, 2022',
-    avatar: avatar2,
-  },
-  {
-    image: card9,
-    category: 'Technology',
-    title:
-      'The Impact of Technology on the Workplace: How Technology is Changing',
-    author: 'Ernie Smith',
-    date: 'August 20, 2022',
-    avatar: avatar3,
-  },
-];
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 const PostCards = () => {
+  const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const LIMIT = 9;
+
+  const fetchPosts = async pageNum => {
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_SERVER_DOMAIN
+        }/blogs/all/published/post?page=${pageNum}&limit=${LIMIT}`
+      );
+      const newPosts = response.data.blogs;
+      if (newPosts.length < LIMIT) {
+        setHasMore(false);
+      }
+      setPosts(prev => [...prev, ...newPosts]);
+    } catch (err) {
+      toast.error('Failed to fetch posts');
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(page);
+  }, [page]);
+
+  const handleShowMore = () => {
+    setPage(prev => prev + 1);
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
-      <h1 className="text-xl font-bold mb-6">Latest Post</h1>
+      <h1 className="text-xl font-bold mb-6">Latest Posts</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {posts.map((post, index) => (
-          <PostCard key={index} {...post} />
+        {posts.map(post => (
+          <Link to={`/blogs/${post.id}`} key={post.id}>
+            <PostCard {...post} />
+          </Link>
         ))}
       </div>
-      <div className="flex justify-center mt-6">
-        <button className="border px-6 py-2 rounded-md hover:bg-gray-100">
-          View All Post
-        </button>
-      </div>
+
+      {hasMore && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={handleShowMore}
+            className="border px-6 py-2 rounded-md hover:bg-gray-100"
+          >
+            Show More
+          </button>
+        </div>
+      )}
     </div>
   );
 };

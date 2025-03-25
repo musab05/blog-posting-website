@@ -1,11 +1,11 @@
-import { Link } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../AuthProvider';
 import UserNavigationPanel from '../common/UserNavigation';
 import { Outlet } from 'react-router-dom';
 
 const Navbar = () => {
-  const { logout } = useAuth();
+  const { user } = useAuth();
   const [theme, SetTheme] = useState('light');
   const [userNavPanel, setUserNavPanel] = useState(false);
 
@@ -24,15 +24,20 @@ const Navbar = () => {
         <Link to="/">
           <h1>Logo</h1>
         </Link>
-        <div className="" onClick={handleUserNavPanel} onBlur={handleBlur}>
-          <button className="w-12 h-12 mt-1">
-            <img
-              // src={profile_img}
-              className="w-full h-full object-cover rounded-full"
-            />
-          </button>
+        <div className="flex flex-row gap-2 justify-center align-middle items-center">
+          <Link to="/editor">
+            <i className="fi fi-rr-edit text-4xl"></i>
+          </Link>
+          <div className="" onClick={handleUserNavPanel} onBlur={handleBlur}>
+            <button className="w-12 h-12 mt-1">
+              <img
+                src={user.profileUrl}
+                className="w-full h-full object-cover rounded-full"
+              />
+            </button>
 
-          {userNavPanel ? <UserNavigationPanel /> : ''}
+            {userNavPanel ? <UserNavigationPanel /> : ''}
+          </div>
         </div>
       </nav>
       <Outlet />
