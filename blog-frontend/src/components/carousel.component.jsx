@@ -49,6 +49,7 @@ const Carousel = () => {
         pagination={{ clickable: true }}
         spaceBetween={20}
         className="w-full h-full"
+        spaceBetween={20}
       >
         {topPosts.map((post, index) => (
           <SwiperSlide

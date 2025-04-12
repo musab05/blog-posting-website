@@ -20,7 +20,6 @@ export default function TextEditor({ setContent, initialContent }) {
 
   // Initialize editor only once
   useEffect(() => {
-    console.log("dnkfjbndnh bndg kbdkb b jb b jdjhjhjhbjhbjhghrbhgbrby")
     if (shouldInitialize && !ejInstance.current) {
       initEditor();
       setShouldInitialize(false);
@@ -34,11 +33,9 @@ export default function TextEditor({ setContent, initialContent }) {
     };
   }, [shouldInitialize]);
 
-  // Handle initial content - only when editor is ready and content exists
   useEffect(() => {
     console.log('Initial content:', initialContent);
     if (isReady && initialContent?.blocks?.length > 0 && ejInstance.current) {
-      // Only render if content is different from current
       ejInstance.current.render(initialContent).catch(console.error);
     }
   }, [isReady]);
@@ -123,7 +120,6 @@ export default function TextEditor({ setContent, initialContent }) {
         setIsReady(true);
       },
       onChange: async (api, event) => {
-        // Only save if the change wasn't from initial render
         if (event?.type !== 'block-added' && ejInstance.current) {
           try {
             const data = await ejInstance.current.save();

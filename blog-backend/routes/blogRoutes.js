@@ -49,7 +49,6 @@ router.post('/create', requireAuth, async (req, res) => {
     if (!title) {
       return res.status(400).json({ error: 'Title is required' });
     }
-
     if (!isDraft) {
       if (
         !type ||

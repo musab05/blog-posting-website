@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Add axios configuration
   axios.defaults.baseURL = import.meta.env.VITE_SERVER_DOMAIN;
   axios.defaults.withCredentials = true;
 
