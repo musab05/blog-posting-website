@@ -8,7 +8,6 @@ import ffprobePath from 'ffprobe-static';
 
 const router = express.Router();
 
-// Set ffmpeg and ffprobe paths
 ffmpeg.setFfmpegPath(ffmpegPath);
 ffmpeg.setFfprobePath(ffprobePath.path);
 
