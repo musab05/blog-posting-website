@@ -6,7 +6,7 @@ const TopPost = ({ title, user, imgSrc, tag, createdAt }) => {
       <div className="w-full max-w-[1100px] relative">
         {imgSrc ? (
           <img
-            className="hidden md:block w-full h-auto rounded-xl object-cover"
+            className="hidden md:block w-full max-h-[500px] rounded-xl object-cover"
             src={imgSrc}
             alt={title}
           />

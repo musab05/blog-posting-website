@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Link } from 'react-router-dom';
 
 export default function ArticleCard({ title, user, tag, createdAt }) {
   return (
@@ -12,12 +13,9 @@ export default function ArticleCard({ title, user, tag, createdAt }) {
         <h2 className="text-xl font-semibold mt-3">{title}</h2>
         <div className="flex items-center mt-4 text-gray-600 text-sm">
           <Avatar className="w-8 h-8 mr-2">
-            <AvatarImage
-              src={`https://ui-avatars.com/api/?name=${user?.username}`}
-              alt={user?.username}
-            />
+            <AvatarImage src={user?.profileUrl} alt={user?.username} />
             <AvatarFallback>
-              {user?.username?.slice(0, 2).toUpperCase()}
+              {user?.name?.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <span>{user?.username}</span>

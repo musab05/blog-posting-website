@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageSquare } from 'lucide-react';
+import { Edit, MessageSquare } from 'lucide-react';
+import CommentSection from '../components/commentSection.component';
+import VideoPlayer from '../common/VideoPlayer';
+import { useAuth } from '../AuthProvider';
 
 function BlockRenderer({ blocks }) {
   return blocks.map(block => {
@@ -40,36 +44,97 @@ function BlockRenderer({ blocks }) {
         return (
           <blockquote key={block.id} className="border-l-4 pl-4 italic my-4">
             {block.data.text}
+            {block.data.caption && (
+              <footer className="text-sm mt-2 not-italic">
+                — {block.data.caption}
+              </footer>
+            )}
           </blockquote>
         );
       case 'code':
         return (
           <pre
             key={block.id}
-            className="bg-gray-100 p-2 rounded my-4 overflow-x-auto"
+            className="bg-gray-100 p-4 rounded my-4 overflow-x-auto text-sm"
           >
-            {block.data.code}
+            <code>{block.data.code}</code>
           </pre>
         );
       case 'image':
+        const imageFile = block.data.file;
         return (
-          <img
-            key={block.id}
-            src={block.data.file.url}
-            alt={block.data.caption}
-            className="rounded-xl my-4"
-          />
+          <figure key={block.id} className="my-6">
+            <div className="flex justify-center">
+              {imageFile?.url ? (
+                <img
+                  src={imageFile.url}
+                  alt={block.data.caption || ''}
+                  className="rounded-xl max-w-full h-auto max-h-[600px] object-contain"
+                  onError={e => {
+                    e.target.style.display = 'none';
+                    e.target.nextElementSibling?.style?.removeProperty(
+                      'display'
+                    );
+                  }}
+                />
+              ) : null}
+              <div className="hidden bg-gray-100 rounded-xl p-4 text-center w-full">
+                Failed to load image
+              </div>
+            </div>
+            {block.data.caption && (
+              <figcaption className="text-sm text-gray-500 text-center mt-2">
+                {block.data.caption}
+              </figcaption>
+            )}
+          </figure>
         );
       case 'video':
+        const videoUrl = block.data.url || block.data.file?.url;
+        const caption = block.data.caption;
+
+        if (!videoUrl) {
+          console.error('No video URL found in block:', block);
+          return (
+            <div className="bg-gray-100 rounded-xl p-4 text-center my-6">
+              Video content not available
+            </div>
+          );
+        }
+
         return (
-          <video key={block.id} controls className="rounded-xl w-full my-4">
-            <source src={block.data.file.url} type="video/mp4" />
-          </video>
+          <div key={block.id} className="my-6">
+            <div className="relative aspect-video">
+              <video
+                controls
+                className="rounded-xl w-full bg-black"
+                onError={e => {
+                  e.target.style.display = 'none';
+                  const errorDiv = e.target.nextElementSibling;
+                  if (errorDiv) errorDiv.style.display = 'flex';
+                }}
+              >
+                <source src={videoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <div
+                className="hidden absolute inset-0 bg-gray-100 rounded-xl items-center justify-center"
+                style={{ display: 'none' }}
+              >
+                Failed to load video
+              </div>
+            </div>
+            {caption && (
+              <p className="text-sm text-gray-500 text-center mt-2">
+                {caption}
+              </p>
+            )}
+          </div>
         );
       case 'delimiter':
         return (
-          <div key={block.id} className="my-4 text-center">
-            ***
+          <div key={block.id} className="my-8 flex justify-center">
+            <div className="w-24 h-px bg-gray-300"></div>
           </div>
         );
       default:
@@ -81,18 +146,28 @@ function BlockRenderer({ blocks }) {
 export default function BlogShowPage() {
   const { blogId } = useParams();
   const [blog, setBlog] = useState(null);
+  const [author, setAuthor] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleEditBlog = blogId => {
+    navigate(`/editor?edit=${blogId}`);
+  };
 
   useEffect(() => {
     const fetchBlog = async () => {
       try {
         const res = await axios.get(
-          import.meta.env.VITE_SERVER_DOMAIN+`/blogs/${blogId}`
+          `${import.meta.env.VITE_SERVER_DOMAIN}/blogs/${blogId}`
         );
-        console.log(res.data)
+        console.log(res.data);
         setBlog(res.data);
+        setAuthor(res.data.author);
       } catch (err) {
         console.error(err);
+        setError('Failed to load blog post');
       } finally {
         setLoading(false);
       }
@@ -102,114 +177,130 @@ export default function BlogShowPage() {
 
   if (loading) {
     return (
-      <div className="p-8 space-y-4">
-        <Skeleton className="h-10 w-1/2" />
+      <div className="max-w-4xl mx-auto p-8 space-y-6">
+        <Skeleton className="h-10 w-3/4" />
         <Skeleton className="h-96 w-full" />
-        <Skeleton className="h-6 w-1/4" />
-        <Skeleton className="h-4 w-full" />
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+        </div>
+        <div className="space-y-4">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-4/6" />
+        </div>
       </div>
     );
   }
 
-  if (!blog) return <p className="p-8">Blog not found</p>;
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto p-8 text-center">
+        <div className="bg-red-50 text-red-600 p-4 rounded-lg inline-block">
+          {error}
+        </div>
+        <Link
+          to="/"
+          className="mt-4 inline-block text-blue-600 hover:underline"
+        >
+          Return to home
+        </Link>
+      </div>
+    );
+  }
+
+  if (!blog) {
+    return (
+      <div className="max-w-4xl mx-auto p-8 text-center">
+        <p>Blog not found</p>
+        <Link
+          to="/"
+          className="mt-4 inline-block text-blue-600 hover:underline"
+        >
+          Return to home
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 space-y-6">
-      {(blog.banner && blog.type === "blog") && (
+    <div className="max-w-4xl mx-auto py-8 px-4 space-y-8">
+      {blog.banner && blog.type === 'blog' && (
         <img
           src={blog.banner}
           alt="banner"
           className="rounded-2xl w-full h-96 object-cover"
+          onError={e => {
+            e.target.style.display = 'none';
+          }}
         />
       )}
 
       <h1 className="text-4xl font-bold">{blog.title}</h1>
 
-      <div className="flex items-center gap-4 mt-2">
+      <div className="flex items-center gap-4">
         <Avatar>
-          <AvatarImage src={blog.author?.profileURL || ''} />
+          <AvatarImage src={author?.profileUrl} />
           <AvatarFallback>
-            {blog.author?.username[0]?.toUpperCase()}
+            {author?.username?.[0]?.toUpperCase() || 'U'}
           </AvatarFallback>
         </Avatar>
         <div>
-          <p className="font-semibold">
-            {blog.author?.name || blog.author?.username}
-          </p>
+          <Link
+            to={`/profile/${author?.username}`}
+            className="font-semibold hover:underline"
+          >
+            {author?.username || 'Unknown author'}
+          </Link>
           <p className="text-sm text-muted-foreground">
-            {new Date(blog.createdAt).toLocaleDateString()}
+            {new Date(blog.createdAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
           </p>
         </div>
+        {blog.userId === user?.id && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleEditBlog(blog.id)}
+            className="h-8"
+          >
+            <Edit className="w-4 h-4 mr-1" />
+            Edit
+          </Button>
+        )}
       </div>
 
-      <div className="flex gap-2 flex-wrap mt-4">
-        {blog.tags?.map(tag => (
-          <Badge key={tag} variant="outline">
-            {tag}
-          </Badge>
-        ))}
-      </div>
+      {blog.tags?.length > 0 && (
+        <div className="flex gap-2 flex-wrap">
+          {blog.tags.map(tag => (
+            <Badge key={tag} variant="outline">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+      )}
 
       {blog.type === 'blog' && blog.content?.blocks && (
-        <div className="prose prose-lg mt-6 max-w-none">
+        <article className="mt-8">
           <BlockRenderer blocks={blog.content.blocks} />
+        </article>
+      )}
+
+      {blog.type === 'video' && blog.video && (
+        <div className="mt-8">
+          <VideoPlayer videoUrl={blog.video} />
         </div>
       )}
-      {blog.type === 'video' && blog.video && (
-        <video controls className="rounded-xl w-full mt-6">
-          <source src={blog.video} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      )}
 
-      <Card className="mt-8">
-        <CardContent className="p-6 space-y-4">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <MessageSquare size={20} /> Comments
-          </h2>
-          {blog.comments?.length === 0 && (
-            <p className="text-sm text-muted-foreground">No comments yet</p>
-          )}
-
-          {blog.comments?.map(comment => (
-            <div key={comment.id} className="space-y-2">
-              <div className="flex gap-2 items-center">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>
-                    {comment.author.username[0].toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium text-sm">
-                    {comment.author.username}
-                  </p>
-                  <p className="text-sm">{comment.text}</p>
-                </div>
-              </div>
-
-              {comment.replies?.length > 0 && (
-                <div className="ml-8 space-y-2">
-                  {comment.replies.map(reply => (
-                    <div key={reply.id} className="flex gap-2 items-center">
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback>
-                          {reply.author.username[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-xs font-medium">
-                          {reply.author.username}
-                        </p>
-                        <p className="text-xs">{reply.text}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      <div className="mt-12">
+        <CommentSection blog={blog} setBlog={setBlog} />
+      </div>
     </div>
   );
 }

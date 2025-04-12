@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
@@ -13,69 +13,16 @@ import Delimiter from '@editorjs/delimiter';
 import CustomVideoTool from './CustomVideoTool';
 import axios from 'axios';
 
-export default function TextEditor({ setContent }) {
+export default function TextEditor({ setContent, initialContent }) {
   const ejInstance = useRef(null);
+  const [isReady, setIsReady] = useState(false);
+  const [shouldInitialize, setShouldInitialize] = useState(true);
 
+  // Initialize editor only once
   useEffect(() => {
-    if (!ejInstance.current) {
-      const editor = new EditorJS({
-        holder: 'editorjs',
-        autofocus: true,
-        inlineToolbar: ['bold', 'italic', 'marker', 'link'],
-        tools: {
-          header: Header,
-          paragraph: Paragraph,
-          list: List,
-          embed: Embed,
-          code: CodeTool,
-          quote: Quote,
-          marker: Marker,
-          delimiter: Delimiter,
-          table: Table,
-          image: {
-            class: ImageTool,
-            config: {
-              uploader: {
-                async uploadByFile(file) {
-                  const res = await uploadFileToServer(file);
-                  if (res.success) {
-                    return {
-                      success: 1,
-                      file: { url: res.path },
-                    };
-                  }
-                  return { success: 0 };
-                },
-              },
-            },
-          },
-          video: {
-            class: CustomVideoTool,
-            config: {
-              uploader: {
-                async uploadByFile(file) {
-                  const res = await uploadFileToServer(file);
-                  if (res.success) {
-                    return {
-                      success: 1,
-                      file: { url: res.path },
-                    };
-                  }
-                  return { success: 0 };
-                },
-              },
-            },
-          },
-        },
-        onReady: () => {
-          ejInstance.current = editor;
-        },
-        onChange: async () => {
-          const data = await ejInstance.current.save();
-          setContent(data);
-        },
-        placeholder: 'Start writing your blog content...',
-      });
+    if (shouldInitialize && !ejInstance.current) {
+      initEditor();
+      setShouldInitialize(false);
     }
 
     return () => {
@@ -84,7 +31,107 @@ export default function TextEditor({ setContent }) {
         ejInstance.current = null;
       }
     };
-  }, [setContent]);
+  }, [shouldInitialize]);
+
+  useEffect(() => {
+    console.log('Initial content:', initialContent);
+    if (isReady && initialContent?.blocks?.length > 0 && ejInstance.current) {
+      ejInstance.current.render(initialContent).catch(console.error);
+    }
+  }, [isReady]);
+
+  const initEditor = () => {
+    const editor = new EditorJS({
+      holder: 'editorjs',
+      autofocus: true,
+      data: initialContent || { blocks: [] },
+      minHeight: 100,
+      inlineToolbar: ['bold', 'italic', 'marker', 'link'],
+      tools: {
+        header: {
+          class: Header,
+          config: {
+            placeholder: 'Enter a header',
+            levels: [2, 3, 4],
+            defaultLevel: 2,
+          },
+        },
+        paragraph: {
+          class: Paragraph,
+          inlineToolbar: true,
+        },
+        list: {
+          class: List,
+          inlineToolbar: true,
+        },
+        embed: Embed,
+        code: CodeTool,
+        quote: {
+          class: Quote,
+          inlineToolbar: true,
+          config: {
+            quotePlaceholder: 'Enter a quote',
+            captionPlaceholder: 'Quote author',
+          },
+        },
+        marker: Marker,
+        delimiter: Delimiter,
+        table: {
+          class: Table,
+          inlineToolbar: true,
+        },
+        image: {
+          class: ImageTool,
+          config: {
+            uploader: {
+              async uploadByFile(file) {
+                const res = await uploadFileToServer(file);
+                if (res.success) {
+                  return {
+                    success: 1,
+                    file: { url: res.path },
+                  };
+                }
+                return { success: 0 };
+              },
+            },
+          },
+        },
+        video: {
+          class: CustomVideoTool,
+          config: {
+            uploader: {
+              async uploadByFile(file) {
+                const res = await uploadFileToServer(file);
+                if (res.success) {
+                  return {
+                    success: 1,
+                    file: { url: res.path },
+                  };
+                }
+                return { success: 0 };
+              },
+            },
+          },
+        },
+      },
+      onReady: () => {
+        ejInstance.current = editor;
+        setIsReady(true);
+      },
+      onChange: async (api, event) => {
+        if (event?.type !== 'block-added' && ejInstance.current) {
+          try {
+            const data = await ejInstance.current.save();
+            setContent(data);
+          } catch (error) {
+            console.error('Error saving editor content:', error);
+          }
+        }
+      },
+      placeholder: 'Start writing your blog content...',
+    });
+  };
 
   const uploadFileToServer = async file => {
     const formData = new FormData();
@@ -99,8 +146,7 @@ export default function TextEditor({ setContent }) {
           withCredentials: true,
         }
       );
-      const fullPath = data.url;
-      return { ...data, path: fullPath };
+      return { success: 1, path: data.url };
     } catch (error) {
       console.error('Error uploading file:', error);
       return { success: 0 };

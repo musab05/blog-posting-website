@@ -19,7 +19,6 @@ const User = sequelize.define(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: false,
     },
     username: {
       type: DataTypes.STRING,
@@ -46,6 +45,15 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: randomAvatarUrl,
+    },
+    isPrivate: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    socialLinks: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: {},
     },
   },
   {

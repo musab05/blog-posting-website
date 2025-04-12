@@ -1,13 +1,20 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { use, useEffect, useState } from 'react';
+=======
 import { useAuth } from '../AuthProvider';
 import UserNavigationPanel from '../common/UserNavigation';
 import { Outlet } from 'react-router-dom';
+import { Bell, Edit, User } from 'lucide-react';
+import { toast } from 'sonner';
+import axios from 'axios';
+import { useNotification } from '../NotificationProvider';
+import LOGO from '../assets/logo.png'
 
 const Navbar = () => {
   const { user } = useAuth();
   const [theme, SetTheme] = useState('light');
   const [userNavPanel, setUserNavPanel] = useState(false);
+  const { hasNotification, fetchUserNotifications } = useNotification();
 
   const handleUserNavPanel = () => {
     setUserNavPanel(currentVal => !currentVal);
@@ -18,25 +25,44 @@ const Navbar = () => {
       setUserNavPanel(false);
     }, 275);
   };
+
   return (
     <>
       <nav className="z-10 sticky top-0 flex flex-row justify-between items-center gap-12 w-full px-[5vw] py-5 h-[80px] border-b border-grey bg-white">
         <Link to="/">
-          <h1>Logo</h1>
+          <img
+            className="w-auto h-35 object-contain"
+            src={LOGO}
+            alt="BlogVista Logo"
+          />
         </Link>
-        <div className="flex flex-row gap-2 justify-center align-middle items-center">
+        <div className="flex flex-row gap-4 items-center">
           <Link to="/editor">
-            <i className="fi fi-rr-edit text-4xl"></i>
+            <Edit size={28} className="text-gray-700 hover:text-gray-900" />
           </Link>
-          <div className="" onClick={handleUserNavPanel} onBlur={handleBlur}>
-            <button className="w-12 h-12 mt-1">
-              <img
-                src={user.profileUrl}
-                className="w-full h-full object-cover rounded-full"
-              />
+          <Link to="/notification" className="relative">
+            <Bell size={28} className="text-gray-700 hover:text-gray-900" />
+            {hasNotification && (
+              <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+            )}
+          </Link>
+          <div
+            className="relative"
+            onClick={handleUserNavPanel}
+            onBlur={handleBlur}
+          >
+            <button className="w-12 h-12 rounded-full overflow-hidden">
+              {user.profileUrl ? (
+                <img
+                  src={user.profileUrl}
+                  className="w-full h-full object-cover"
+                  alt="User"
+                />
+              ) : (
+                <User size={32} className="text-gray-700 hover:text-gray-900" />
+              )}
             </button>
-
-            {userNavPanel ? <UserNavigationPanel /> : ''}
+            {userNavPanel && <UserNavigationPanel />}
           </div>
         </div>
       </nav>
@@ -44,4 +70,5 @@ const Navbar = () => {
     </>
   );
 };
+
 export default Navbar;

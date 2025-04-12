@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 import User from './User.js';
+import Comment from './Comment.js';
 
 const Blog = sequelize.define(
   'Blog',
@@ -13,26 +14,41 @@ const Blog = sequelize.define(
     title: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        len: [2, 255],
+      },
     },
     isDraft: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
     type: {
-      type: DataTypes.ENUM('blog', 'video'),
-      allowNull: true,
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'blog',
+      validate: {
+        isIn: [['blog', 'video', 'podcast']],
+      },
     },
     banner: {
       type: DataTypes.STRING,
       allowNull: true,
     },
     shortDescription: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(500),
       allowNull: true,
     },
     tags: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: true,
+      defaultValue: '[]',
+      get() {
+        const rawValue = this.getDataValue('tags');
+        return rawValue ? JSON.parse(rawValue) : [];
+      },
+      set(value) {
+        this.setDataValue('tags', JSON.stringify(value || []));
+      },
     },
     content: {
       type: DataTypes.JSON,
@@ -42,11 +58,25 @@ const Blog = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    likesCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+      },
+    },
+    viewsCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+      },
+    },
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: User,
+        model: 'Users',
         key: 'id',
       },
       onDelete: 'CASCADE',
@@ -55,6 +85,12 @@ const Blog = sequelize.define(
   },
   {
     timestamps: true,
+    indexes: [
+      { fields: ['title'] },
+      { fields: ['userId'] },
+      { fields: ['isDraft'] },
+    ],
+    paranoid: true,
   }
 );
 
@@ -62,85 +98,12 @@ Blog.belongsTo(User, {
   foreignKey: 'userId',
   as: 'author',
   onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
 });
 
-const Comment = sequelize.define(
-  'Comment',
-  {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-    },
-    text: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    userId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: User,
-        key: 'id',
-      },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    },
-    blogId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: Blog,
-        key: 'id',
-      },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    },
-    parentId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: 'Comments',
-        key: 'id',
-      },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
-
-Comment.belongsTo(User, {
-  foreignKey: 'userId',
-  as: 'user',
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
-});
 Blog.hasMany(Comment, {
+  foreignKey: 'blogId',
   as: 'comments',
-  foreignKey: 'blogId',
   onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
-});
-Comment.belongsTo(Blog, {
-  foreignKey: 'blogId',
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
-});
-Comment.hasMany(Comment, {
-  as: 'replies',
-  foreignKey: 'parentId',
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
-});
-Comment.belongsTo(Comment, {
-  as: 'parent',
-  foreignKey: 'parentId',
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
 });
 
-export { Blog, Comment };
+export default Blog;

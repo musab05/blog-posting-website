@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 
 const UserNavigationPanel = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <AnimationWrapper
@@ -17,7 +17,7 @@ const UserNavigationPanel = () => {
           <p>Write</p>
         </Link>
 
-        <Link to={`/user/`} className="link pl-8 py-4">
+        <Link to={`/profile/${user.username}`} className="link pl-8 py-4">
           Profile
         </Link>
 

@@ -17,8 +17,7 @@ export default function PostCard({ banner, tags, title, author, createdAt }) {
           <Avatar className="w-8 h-8 mr-2">
             <AvatarImage src={author.profileUrl} alt={author.profileUrl} />
             <AvatarFallback>
-              {author.name.split(' ')[0][0]}
-              {author.name.split(' ')[1][0]}
+              {author.name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <span>{author.username}</span>

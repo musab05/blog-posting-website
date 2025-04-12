@@ -1,0 +1,24 @@
+// {
+//   "development": {
+//     "username": "your_rds_username",
+//     "password": "your_rds_password",
+//     "database": "your_rds_database",
+//     "host": "your-rds-endpoint.amazonaws.com",
+//     "dialect": "mysql"
+//   },
+//   "test": {
+//     "username": "your_rds_username",
+//     "password": "your_rds_password",
+//     "database": "your_rds_database",
+//     "host": "your-rds-endpoint.amazonaws.com",
+//     "dialect": "mysql"
+//   },
+//   "production": {
+//     "username": "your_rds_username",
+//     "password": "your_rds_password",
+//     "database": "your_rds_database",
+//     "host": "your-rds-endpoint.amazonaws.com",
+//     "dialect": "mysql"
+//   }
+// }
+

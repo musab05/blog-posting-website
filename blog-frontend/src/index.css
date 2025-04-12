@@ -127,4 +127,13 @@
   .link {
     @apply hover:text-black p-3 px-4 block opacity-75;
   }
+
+.social-icon {
+  transition: all 0.2s ease;
+}
+
+.social-icon:hover {
+  transform: scale(1.2); 
+  color: #3b82f6; 
+}
 }
