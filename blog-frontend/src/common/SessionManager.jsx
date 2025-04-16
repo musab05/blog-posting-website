@@ -1,9 +1,8 @@
-// Modify SessionManager.js
 export const SessionManager = {
   setItem: (key, value) => {
     try {
       const data = typeof value === 'object' ? JSON.stringify(value) : value;
-      localStorage.setItem(key, data);  // Use localStorage instead
+      localStorage.setItem(key, data);
     } catch (error) {
       console.error('Error saving to localStorage:', error);
     }
@@ -11,7 +10,7 @@ export const SessionManager = {
   
   getItem: key => {
     try {
-      const data = localStorage.getItem(key);  // Use localStorage instead
+      const data = localStorage.getItem(key);
       if (!data) return null;
 
       try {
@@ -27,7 +26,7 @@ export const SessionManager = {
   
   removeItem: key => {
     try {
-      localStorage.removeItem(key);  // Use localStorage instead
+      localStorage.removeItem(key);
     } catch (error) {
       console.error('Error removing from localStorage:', error);
     }
@@ -35,7 +34,7 @@ export const SessionManager = {
   
   clear: () => {
     try {
-      localStorage.clear();  // Use localStorage instead
+      localStorage.clear();
     } catch (error) {
       console.error('Error clearing localStorage:', error);
     }
