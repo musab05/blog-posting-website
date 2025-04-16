@@ -11,7 +11,7 @@ import SocialIcons from '../components/socialIcons.component';
 const ProfilePage = () => {
   const { username } = useParams();
   const navigate = useNavigate();
-  const { user: loggedInUser, isLoading: authLoading } = useAuth();
+  const { user: loggedInUser, isLoading: authLoading, token } = useAuth();
   const [profile, setProfile] = useState(null);
   const [blogs, setBlogs] = useState([]);
   const [followers, setFollowers] = useState([]);
@@ -35,26 +35,24 @@ const ProfilePage = () => {
         const profileResponse = await axios.get(
           import.meta.env.VITE_SERVER_DOMAIN + `/profile/${username}`
         );
-        console.log('Profile Response:', profileResponse.data);
-        setProfile(profileResponse.data);
-        setIsPrivateProfile(profileResponse.data.isPrivate);
+        const profileData = profileResponse.data;
+        setProfile(profileData);
+        setIsPrivateProfile(profileData.isPrivate);
 
-        // Check follow status if not own profile and user is logged in
         if (loggedInUser && loggedInUser.username !== username) {
           try {
+            console.log('Checking follow status for:', profileData, profile);
             const followResponse = await axios.get(
               import.meta.env.VITE_SERVER_DOMAIN + `/profile/follow/status`,
               {
                 params: {
-                  followingId: profileResponse.data.id,
-                  followerId: loggedInUser.id,
+                  followingId: profileData.id,
                 },
                 headers: {
-                  Authorization: `Bearer ${localStorage.getItem('token')}`,
+                  Authorization: token,
                 },
               }
             );
-            console.log('Follow Status Response:', followResponse.data);
             setIsFollowing(followResponse.data.isFollowing);
             setFollowStatus(followResponse.data.status);
           } catch (err) {
@@ -62,7 +60,6 @@ const ProfilePage = () => {
           }
         }
 
-        // Fetch initial tab data
         await fetchTabData(activeTab, profileResponse.data.id);
       } catch (err) {
         console.error('Error fetching profile data:', err);
@@ -161,7 +158,7 @@ const ProfilePage = () => {
           import.meta.env.VITE_SERVER_DOMAIN + `/profile/follow/${profile.id}`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              Authorization: token,
             },
           }
         );
@@ -185,7 +182,7 @@ const ProfilePage = () => {
           {},
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              Authorization: token,
             },
           }
         );
