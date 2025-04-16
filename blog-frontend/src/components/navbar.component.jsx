@@ -1,14 +1,13 @@
 import { Link } from 'react-router-dom';
-import { use, useEffect, useState } from 'react';
-=======
+import { useEffect, useState } from 'react';
 import { useAuth } from '../AuthProvider';
 import UserNavigationPanel from '../common/UserNavigation';
 import { Outlet } from 'react-router-dom';
-import { Bell, Edit, User } from 'lucide-react';
+import { Bell, Edit, User, Compass } from 'lucide-react'; // Added Compass icon
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useNotification } from '../NotificationProvider';
-import LOGO from '../assets/logo.png'
+import LOGO from '../assets/logo.png';
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -37,6 +36,13 @@ const Navbar = () => {
           />
         </Link>
         <div className="flex flex-row gap-4 items-center">
+          <Link
+            to="/discovery"
+            className="hidden md:flex items-center gap-1 text-gray-700 hover:text-gray-900"
+          >
+            <Compass size={28} />
+          </Link>
+
           <Link to="/editor">
             <Edit size={28} className="text-gray-700 hover:text-gray-900" />
           </Link>
