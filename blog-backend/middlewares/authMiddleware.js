@@ -4,8 +4,9 @@ import User from '../models/User.js';
 export const requireAuth = async (req, res, next) => {
   try {
     const token =
-      req.cookies?.token || req.headers.authorization?.split(' ')[1];
-
+      req.cookies?.token ||
+      req.headers.authorization?.split(' ')[1] ||
+      req.headers.authorization;
     if (!token) {
       return res.status(401).json({ message: 'Authentication required' });
     }
