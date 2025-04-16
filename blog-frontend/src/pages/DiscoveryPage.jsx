@@ -59,7 +59,7 @@ const DiscoveryPage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_SERVER_DOMAIN}/discovery`,
+        import.meta.env.VITE_SERVER_DOMAIN+`/discovery`,
         {
           params: { page, tab: activeTab },
         }
@@ -130,7 +130,7 @@ const DiscoveryPage = () => {
       setError(null);
 
       const response = await axios.get(
-        `${import.meta.env.VITE_SERVER_DOMAIN}/discovery/search`,
+        import.meta.env.VITE_SERVER_DOMAIN+`/discovery/search`,
         { params: { query: searchQuery } }
       );
 
@@ -274,9 +274,6 @@ const DiscoveryPage = () => {
         </Link>
         <p className="text-sm text-gray-500">{user.name}</p>
       </div>
-      <Button variant="outline" size="sm" className="rounded-full">
-        Follow
-      </Button>
     </Card>
   );
 
@@ -436,22 +433,6 @@ const DiscoveryPage = () => {
             </p>
           </div>
         )}
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t flex justify-around py-3">
-        <Button variant="ghost" size="icon" className="h-10 w-10">
-          <FiHome className="h-5 w-5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-10 w-10">
-          <FiCompass className="h-5 w-5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-10 w-10">
-          <FiPlusSquare className="h-5 w-5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-10 w-10">
-          <FiUser className="h-5 w-5" />
-        </Button>
       </div>
     </div>
   );
